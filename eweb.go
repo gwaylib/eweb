@@ -8,6 +8,7 @@ import (
 	stdLog "log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"text/template"
 	"time"
@@ -45,8 +46,6 @@ func DebugMode() bool {
 type H map[string]interface{}
 
 type Eweb struct {
-	respSize   int64
-	respStatus int
 	*echo.Echo
 }
 
@@ -109,34 +108,14 @@ func (e *Eweb) colorForMethod(method string) string {
 
 func (e *Eweb) FilterHandle(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		defer func(start time.Time) {
+		defer func() {
 			resp := c.Response()
-			pErr := recover()
-			if pErr != nil {
-				resp.WriteHeader(500)
-			}
+			req := c.Request()
 
-			r := c.Request()
-			n := fmt.Sprintf("%d", resp.Status)
-			if !e.Debug && n < "400" {
-				return
-			}
-
-			ip := ReadIp(r)
-			stop := time.Now()
-			color.Printf(
-				"[eweb] %s | %s | %-14s | T: %15s | IP: %15s | URI:%s \n",
-				start.Format("2006-01-02 15:04:05"),
-				e.colorForStatus(n), e.colorForMethod(r.Method),
-				stop.Sub(start).String(), // latency_human
-				ip, r.RequestURI,
-			)
-
-			if pErr != nil {
-				fmt.Printf("panic: %+v\n", pErr)
-				panic(pErr)
-			}
-		}(time.Now())
+			// 回传数据
+			req.Header.Add("resp-size", strconv.FormatInt(resp.Size, 10))
+			req.Header.Add("resp-status", strconv.Itoa(resp.Status))
+		}()
 
 		if err := next(c); err != nil {
 			// deal default error
@@ -167,6 +146,46 @@ func (e *Eweb) FilterHandle(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		return nil
 	}
+}
+
+func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// request performance
+	defer func(start time.Time) {
+		pErr := recover()
+
+		if pErr != nil {
+			r.Header.Set("resp-status", "500")
+		}
+
+		req := r
+		n := r.Header.Get("resp-status")
+		if !e.Debug && n < "400" {
+			return
+		}
+
+		contentInL := req.Header.Get(echo.HeaderContentLength)
+		if contentInL == "" {
+			contentInL = "0"
+		}
+		contentOutL := r.Header.Get("resp-size")
+		ip := ReadIp(r)
+		stop := time.Now()
+		color.Printf(
+			"[eweb] %s | %s | %-14s | I:%10sB | O:%10sB | T:%15s | FROM:%15s | URI:%s \n",
+			start.Format("2006-01-02 15:04:05"),
+			e.colorForStatus(n), e.colorForMethod(req.Method),
+			contentInL, contentOutL,
+			stop.Sub(start).String(), // latency_human
+			ip, req.RequestURI,
+		)
+
+		if pErr != nil {
+			fmt.Printf("panic: %+v\n", pErr)
+			panic(pErr)
+		}
+	}(time.Now())
+
+	e.Echo.ServeHTTP(w, r)
 }
 
 // Start starts an HTTP server.
