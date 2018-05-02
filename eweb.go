@@ -171,11 +171,11 @@ func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ip := ReadIp(r)
 		stop := time.Now()
 		color.Printf(
-			"[eweb] %s | %s | %-6s | I:%5sB | O:%5sB | T:%8s | FROM:%15s | URI:%s \n",
+			"[eweb] %s | %s | %-4s | I:%5sB | O:%5sB | T:%7s | FROM:%15s | URI:%s \n",
 			start.Format("2006-01-02 15:04:05"),
 			e.colorForStatus(n), req.Method,
 			contentInL, contentOutL,
-			fmt.Sprintf("%.3f", float64(stop.Sub(start)/1e6)/1000),
+			fmt.Sprintf("%.3fs", float64(stop.Sub(start)/1e6)/1000),
 			ip, req.RequestURI,
 		)
 
