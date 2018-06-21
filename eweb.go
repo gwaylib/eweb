@@ -127,9 +127,6 @@ func (e *Eweb) FilterHandle(next echo.HandlerFunc) echo.HandlerFunc {
 			if he, ok := err.(*echo.HTTPError); ok {
 				code = he.Code
 				msg = fmt.Sprintf("%v", he.Message)
-				if he.Inner != nil {
-					msg = fmt.Sprintf("%v, %v", err, he.Inner)
-				}
 			} else if e.Debug {
 				msg = err.Error()
 			} else {
