@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	stdLog "log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/color"
+	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 var (
@@ -47,6 +49,7 @@ type H map[string]interface{}
 
 type Eweb struct {
 	*echo.Echo
+	quicServer *h2quic.Server
 }
 
 // Using global instance to manager router packages
@@ -177,6 +180,11 @@ func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}(time.Now())
 
+	// support for qiuc
+	if e.quicServer != nil {
+		e.quicServer.SetQuicHeaders(w.Header())
+	}
+
 	e.Echo.ServeHTTP(w, r)
 }
 
@@ -235,8 +243,39 @@ func (e *Eweb) StartServer(s *http.Server) (err error) {
 	}
 
 	if s.TLSConfig != nil {
-		// https
-		return s.Serve(tls.NewListener(kl, s.TLSConfig))
+		quicServer := &h2quic.Server{
+			Server: s,
+		}
+		// Open the listeners
+		udpAddr, err := net.ResolveUDPAddr("udp", s.Addr)
+		if err != nil {
+			return err
+		}
+		udpConn, err := net.ListenUDP("udp", udpAddr)
+		if err != nil {
+			return err
+		}
+		defer udpConn.Close()
+
+		hErr := make(chan error)
+		qErr := make(chan error)
+		go func() {
+			// quic
+			qErr <- quicServer.Serve(udpConn)
+		}()
+		go func() {
+			// https
+			hErr <- s.Serve(tls.NewListener(kl, s.TLSConfig))
+		}()
+
+		select {
+		case err := <-qErr:
+			// Cannot close the HTTP server or wait for requests to complete properly :/
+			return err
+		case err := <-hErr:
+			quicServer.Close()
+			return err
+		}
 	}
 	return s.Serve(kl)
 }
