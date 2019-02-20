@@ -50,7 +50,6 @@ type H map[string]interface{}
 
 type Eweb struct {
 	*echo.Echo
-	QuicServer *h2quic.Server
 }
 
 // Using global instance to manager router packages
