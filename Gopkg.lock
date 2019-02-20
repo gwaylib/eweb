@@ -2,10 +2,43 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/aead/chacha20"
+  packages = [
+    ".",
+    "chacha"
+  ]
+  revision = "8b13a72661dae6e9e5dea04f344f0dc95ea29547"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/bifurcation/mint"
+  packages = [
+    ".",
+    "syntax"
+  ]
+  revision = "83ba9bc2ead9cdf8b0c8bd94e8a41243e5f6ed88"
+
+[[projects]]
+  name = "github.com/cheekybits/genny"
+  packages = ["generic"]
+  revision = "d2cf3cdd35ce0d789056c4bc02a4d6349c947caf"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
+
+[[projects]]
+  name = "github.com/hashicorp/golang-lru"
+  packages = [
+    ".",
+    "simplelru"
+  ]
+  revision = "20f1fb78b0740ba8c3cb143a61e86ba5c8669768"
+  version = "v0.5.0"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -26,6 +59,36 @@
   ]
   revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
   version = "0.2.6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/aes12"
+  packages = ["."]
+  revision = "cd47fb39b79f867c6e4e5cd39cf7abd799f71670"
+
+[[projects]]
+  name = "github.com/lucas-clemente/quic-go"
+  packages = [
+    ".",
+    "h2quic",
+    "internal/ackhandler",
+    "internal/congestion",
+    "internal/crypto",
+    "internal/flowcontrol",
+    "internal/handshake",
+    "internal/protocol",
+    "internal/utils",
+    "internal/wire",
+    "qerr"
+  ]
+  revision = "714f38d5d0aff85894fd890718b991e361f03e7d"
+  version = "v0.10.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/lucas-clemente/quic-go-certificates"
+  packages = ["."]
+  revision = "d2f86524cced5186554df90d92529757d22c1cb6"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -54,6 +117,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c76ab92b5df839e22dafb53257dd2b7ffae75e2d7ac6fb1b200f2783a495caf4"
+  inputs-digest = "2a8a6c6a3237bc2dbe612eb59579eff9b53d1cf3fd48e5f47dcca56939ac51c0"
   solver-name = "gps-cdcl"
   solver-version = 1
