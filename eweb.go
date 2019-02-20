@@ -1,6 +1,7 @@
 package eweb
 
 import (
+	stdContext "context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -49,7 +50,7 @@ type H map[string]interface{}
 
 type Eweb struct {
 	*echo.Echo
-	quicServer *h2quic.Server
+	QuicServer *h2quic.Server
 }
 
 // Using global instance to manager router packages
@@ -66,6 +67,7 @@ func Default() *Eweb {
 		//	defaultE.Logger.SetPrefix("eweb")
 		defaultE.Server.Handler = defaultE
 		defaultE.TLSServer.Handler = defaultE
+		defaultE.QuicServer.Handler = defaultE
 
 		// monitor middleware
 		defaultE.Pre(defaultE.FilterHandle)
@@ -181,11 +183,34 @@ func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}(time.Now())
 
 	// support for qiuc
-	if e.quicServer != nil {
-		e.quicServer.SetQuicHeaders(w.Header())
+	if e.QuicServer != nil {
+		e.QuicServer.SetQuicHeaders(w.Header())
 	}
 
 	e.Echo.ServeHTTP(w, r)
+}
+
+func (e *Eweb) Close() error {
+	if err := e.Echo.Close(); err != nil {
+		return err
+	}
+	if e.QuicServer != nil {
+		if err := e.QuicServer.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (e *Eweb) Shutdown(ctx stdContext.Context) error {
+	if err := e.Echo.Shutdown(ctx); err != nil {
+		return err
+	}
+	if e.QuicServer != nil {
+		if err := e.QuicServer.Shutdown(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Start starts an HTTP server.
@@ -242,40 +267,54 @@ func (e *Eweb) StartServer(s *http.Server) (err error) {
 		return err
 	}
 
+	// for http server
 	if s.TLSConfig != nil {
-		quicServer := &h2quic.Server{
-			Server: s,
-		}
-		// Open the listeners
-		udpAddr, err := net.ResolveUDPAddr("udp", s.Addr)
-		if err != nil {
-			return err
-		}
-		udpConn, err := net.ListenUDP("udp", udpAddr)
-		if err != nil {
-			return err
-		}
-		defer udpConn.Close()
-
-		hErr := make(chan error)
-		qErr := make(chan error)
-		go func() {
-			// quic
-			qErr <- quicServer.Serve(udpConn)
-		}()
-		go func() {
-			// https
-			hErr <- s.Serve(tls.NewListener(kl, s.TLSConfig))
-		}()
-
-		select {
-		case err := <-qErr:
-			// Cannot close the HTTP server or wait for requests to complete properly :/
-			return err
-		case err := <-hErr:
-			quicServer.Close()
-			return err
-		}
+		return s.Serve(kl)
 	}
-	return s.Serve(kl)
+
+	// https
+	return s.Serve(tls.NewListener(kl, s.TLSConfig))
+}
+
+// only start quic server
+func (e *Eweb) StartTLSQUIC(addr, certFile, keyFile string) (err error) {
+	if certFile == "" || keyFile == "" {
+		return errors.New("invalid tls configuration")
+	}
+	c := new(tls.Config)
+	c.Certificates = make([]tls.Certificate, 1)
+	c.Certificates[0], err = tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+	return e.StartTLSConfigQUIC(addr, c)
+}
+
+// only start quic server
+func (e *Eweb) StartTLSConfigQUIC(addr string, c *tls.Config) error {
+	s := &h2quic.Server{
+		Server: new(http.Server),
+	}
+	s.ErrorLog = stdLog.New(os.Stderr, "", stdLog.LstdFlags)
+	s.Handler = e
+	s.Addr = addr
+	s.TLSConfig = c
+	e.QuicServer = s
+
+	// Open the listeners
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+		return err
+	}
+	udpConn, err := net.ListenUDP("udp", udpAddr)
+	if err != nil {
+		return err
+	}
+	defer udpConn.Close()
+
+	if err := s.Serve(udpConn); err != nil {
+		s.Close()
+		return err
+	}
+	return nil
 }
