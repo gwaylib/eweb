@@ -50,6 +50,7 @@ type H map[string]interface{}
 
 type Eweb struct {
 	*echo.Echo
+	QuicServer *h2quic.Server
 }
 
 // Using global instance to manager router packages
@@ -66,7 +67,6 @@ func Default() *Eweb {
 		//	defaultE.Logger.SetPrefix("eweb")
 		defaultE.Server.Handler = defaultE
 		defaultE.TLSServer.Handler = defaultE
-		defaultE.QuicServer.Handler = defaultE
 
 		// monitor middleware
 		defaultE.Pre(defaultE.FilterHandle)
@@ -268,11 +268,11 @@ func (e *Eweb) StartServer(s *http.Server) (err error) {
 
 	// for http server
 	if s.TLSConfig != nil {
-		return s.Serve(kl)
+		// https
+		return s.Serve(tls.NewListener(kl, s.TLSConfig))
 	}
+	return s.Serve(kl)
 
-	// https
-	return s.Serve(tls.NewListener(kl, s.TLSConfig))
 }
 
 // only start quic server
