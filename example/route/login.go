@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// register routes handle
+// register routes
 func init() {
 	e := eweb.Default()
 	e.GET("/login", LoginView)
