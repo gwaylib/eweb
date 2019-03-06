@@ -53,25 +53,30 @@ type Eweb struct {
 	QuicServer *h2quic.Server
 }
 
+func New() *Eweb {
+	e := &Eweb{
+		Echo: echo.New(),
+	}
+
+	// fix log to stderr
+	//	defaultE.Logger.SetOutput(os.Stderr)
+	//	defaultE.Logger.SetPrefix("eweb")
+	e.Server.Handler = defaultE
+	e.TLSServer.Handler = defaultE
+
+	// monitor middleware
+	e.Pre(defaultE.FilterHandle)
+
+	// e.Use(middleware.Recover())
+	return e
+}
+
 // Using global instance to manager router packages
 func Default() *Eweb {
 	defaultELock.Lock()
 	defer defaultELock.Unlock()
 	if defaultE == nil {
-		defaultE = &Eweb{
-			Echo: echo.New(),
-		}
-
-		// fix log to stderr
-		//	defaultE.Logger.SetOutput(os.Stderr)
-		//	defaultE.Logger.SetPrefix("eweb")
-		defaultE.Server.Handler = defaultE
-		defaultE.TLSServer.Handler = defaultE
-
-		// monitor middleware
-		defaultE.Pre(defaultE.FilterHandle)
-
-		// defaultE.Use(middleware.Recover())
+		defaultE = New()
 	}
 	return defaultE
 }
