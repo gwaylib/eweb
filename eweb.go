@@ -17,7 +17,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/color"
-	"github.com/lucas-clemente/quic-go/h2quic"
+	hquic "github.com/lucas-clemente/quic-go/http3"
 )
 
 var (
@@ -50,7 +50,7 @@ type H map[string]interface{}
 
 type Eweb struct {
 	*echo.Echo
-	QuicServer *h2quic.Server
+	QuicServer *hquic.Server
 }
 
 func New() *Eweb {
@@ -296,7 +296,7 @@ func (e *Eweb) StartTLSQUIC(addr, certFile, keyFile string) (err error) {
 
 // only start quic server
 func (e *Eweb) StartTLSConfigQUIC(addr string, c *tls.Config) error {
-	s := &h2quic.Server{
+	s := &hquic.Server{
 		Server: new(http.Server),
 	}
 	s.ErrorLog = stdLog.New(os.Stderr, "", stdLog.LstdFlags)
