@@ -137,10 +137,13 @@ func (e *Eweb) FilterHandle(next echo.HandlerFunc) echo.HandlerFunc {
 			if he, ok := err.(*echo.HTTPError); ok {
 				code = he.Code
 				msg = fmt.Sprintf("%v", he.Message)
-			} else if e.Debug {
+			} else if e != nil && e.Debug {
 				msg = err.Error()
 			} else {
 				msg = http.StatusText(code)
+				if e == nil {
+					fmt.Println(err)
+				}
 			}
 			// Send response
 			if !c.Response().Committed {
