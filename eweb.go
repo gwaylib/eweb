@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"sync"
 	"text/template"
@@ -182,7 +183,7 @@ func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if pErr != nil {
 			fmt.Println("panic: %+v\n", pErr)
-			panic(pErr)
+			debug.PrintStack()
 		}
 	}(time.Now())
 
