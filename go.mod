@@ -13,3 +13,5 @@ require (
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
 )
+
+replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v0.0.0-20210730205404-4bbdd8ac624f // v3.2.2

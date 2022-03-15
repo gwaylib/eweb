@@ -182,7 +182,7 @@ func (e *Eweb) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if pErr != nil {
-			fmt.Println("panic: %+v\n", pErr)
+			println(fmt.Sprintf("panic %+v\n", pErr))
 			debug.PrintStack()
 		}
 	}(time.Now())
