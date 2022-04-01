@@ -8,7 +8,10 @@ import (
 	"io"
 	stdLog "log"
 	"net/http"
+	"net/url"
 	"os"
+	"path"
+	"path/filepath"
 	"runtime/debug"
 	"strconv"
 	"sync"
@@ -111,6 +114,50 @@ func (e *Eweb) colorForMethod(method string) string {
 	default:
 		return color.Reset(method)
 	}
+}
+
+// Support http.FileSystem
+// create http.FileSystem with http.FS(fs) for for embed.FS, os.File
+func (e *Eweb) StaticFS(uriPrefix, filePrefix string, root http.FileSystem) *echo.Route {
+	if root == nil {
+		panic("unsupport nil root")
+	}
+
+	h := func(c echo.Context) error {
+		p, err := url.PathUnescape(c.Param("*"))
+		if err != nil {
+			return err
+		}
+		file := filepath.Join(filePrefix, path.Clean("/"+p))
+
+		f, err := root.Open(file)
+		if err != nil {
+			return echo.NotFoundHandler(c)
+		}
+		defer f.Close()
+
+		fi, _ := f.Stat()
+		if fi.IsDir() {
+			file = filepath.Join(file, "index.html")
+			f, err = os.Open(file)
+			if err != nil {
+				return echo.NotFoundHandler(c)
+			}
+			defer f.Close()
+			if fi, err = f.Stat(); err != nil {
+				return err
+			}
+		}
+		http.ServeContent(c.Response(), c.Request(), fi.Name(), fi.ModTime(), f)
+		return nil
+	}
+
+	e.GET(uriPrefix, h)
+	if uriPrefix == "/" {
+		return e.GET(uriPrefix+"*", h)
+	}
+
+	return e.GET(uriPrefix+"/*", h)
 }
 
 func (e *Eweb) FilterHandle(next echo.HandlerFunc) echo.HandlerFunc {

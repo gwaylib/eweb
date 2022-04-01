@@ -20,3 +20,20 @@ Why base on echo?
 * These are the easiest to substitute when I tried to use them many years ago.
 ```
 
+
+Static File Support
+```
+eweb.Static("/", "./public") // echo supported
+
+
+// os file support 
+fs, err := os.Open("./public")
+if err != nil{
+  panic(err)
+}
+eweb.StaticFS("/", http.FS(fs))
+
+// embed file support
+// fs equal embed.FS
+eweb.StaticFS("/", http.FS(fs))
+```
