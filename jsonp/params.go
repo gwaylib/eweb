@@ -45,6 +45,9 @@ func (p Params) Add(key, value string) {
 func (p Params) AddParams(key string, param Params) {
 	p[key] = param
 }
+func (p Params) AddAny(key string, param interface{}) {
+	p[key] = param
+}
 
 func (p Params) TrimString(key string) string {
 	return strings.TrimSpace(p.String(key))
@@ -146,4 +149,7 @@ func (p Params) ParamsArray(key string) []Params {
 		result = append(result, p)
 	}
 	return result
+}
+func (p Params) Any(key string) interface{} {
+	return p[key]
 }
