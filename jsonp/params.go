@@ -115,6 +115,20 @@ func (p Params) Email(key string) string {
 	}
 	return email
 }
+func (p Params) Params(key string) Params {
+	s, ok := p[key]
+	if !ok {
+		return Params{}
+	}
+	sParams, ok := s.(map[string]interface{})
+	if !ok {
+		return Params{}
+	}
+	return Params(sParams)
+}
+func (p Params) Any(key string) interface{} {
+	return p[key]
+}
 
 func (p Params) StringArray(key string) []string {
 	s, ok := p[key]
@@ -150,6 +164,14 @@ func (p Params) ParamsArray(key string) []Params {
 	}
 	return result
 }
-func (p Params) Any(key string) interface{} {
-	return p[key]
+func (p Params) AnyArray(key string) []interface{} {
+	s, ok := p[key]
+	if !ok {
+		return []interface{}{}
+	}
+	arr, ok := s.([]interface{})
+	if !ok {
+		return []interface{}{}
+	}
+	return arr
 }
