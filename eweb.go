@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io"
 	stdLog "log"
 	"net/http"
 	"net/url"
@@ -15,7 +14,6 @@ import (
 	"runtime/debug"
 	"strconv"
 	"sync"
-	"text/template"
 	"time"
 
 	"github.com/labstack/echo"
@@ -28,21 +26,6 @@ var (
 	defaultELock = sync.Mutex{}
 )
 
-type Template struct {
-	*template.Template
-}
-
-func NewTemplate(tpl *template.Template) *Template {
-	return &Template{tpl}
-}
-func GlobTemplate(filePath string) *Template {
-	return &Template{template.Must(template.ParseGlob(filePath))}
-}
-
-// Implements Renderer interface
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.ExecuteTemplate(w, name, data)
-}
 func DebugMode() bool {
 	return defaultE.Debug
 }
