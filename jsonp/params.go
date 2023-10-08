@@ -60,6 +60,17 @@ func (p Params) String(key string) string {
 	}
 	return fmt.Sprint(s)
 }
+func (p Params) Bool(key string) bool {
+	v, ok := p[key]
+	if !ok {
+		return false
+	}
+	f, ok := v.(bool)
+	if ok {
+		return f
+	}
+	return false
+}
 func (p Params) Float64(key string, noDataRet, errRet float64) float64 {
 	v, ok := p[key]
 	if !ok {
