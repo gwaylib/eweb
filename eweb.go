@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gwaylib/eweb/jsonp"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/color"
 )
@@ -31,7 +32,7 @@ func DebugMode() bool {
 }
 
 // Struct for rendering map
-type H map[string]interface{}
+type H jsonp.Params
 
 type Eweb struct {
 	*echo.Echo

@@ -18,6 +18,10 @@ var (
 
 type Params map[string]interface{}
 
+func NewParams() Params {
+	return make(Params)
+}
+
 func ParseParams(data []byte) (Params, error) {
 	params := Params{}
 	if err := json.Unmarshal(data, &params); err != nil {
