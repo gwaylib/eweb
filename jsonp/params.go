@@ -91,7 +91,22 @@ func (p Params) Float64(key string, noDataRet, errRet float64) float64 {
 }
 
 func (p Params) Int64(key string, noDataRet, errRet int64) int64 {
-	return int64(p.Float64(key, float64(noDataRet), float64(errRet)))
+	v, ok := p[key]
+	if !ok {
+		return noDataRet
+	}
+	f, ok := v.(int64)
+	if ok {
+		return f
+	}
+	if len(fmt.Sprint(v)) == 0 {
+		return noDataRet
+	}
+	out, err := strconv.ParseInt(fmt.Sprint(v), 10, 64)
+	if err != nil {
+		return errRet
+	}
+	return out
 }
 func (p Params) Time(key string, layoutOpt ...string) time.Time {
 	layout := time.RFC3339Nano
