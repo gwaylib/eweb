@@ -39,13 +39,28 @@ func (p Params) JsonData() []byte {
 	return data
 }
 
+// Obsoleted, call Set
 func (p Params) Add(key, value string) {
+	p.Set(key, value)
+}
+
+// Obsoleted, call SetParams
+func (p Params) AddParams(key string, param Params) {
+	p.SetParams(key, param)
+}
+
+// Obsoleted, call SetAny
+func (p Params) AddAny(key string, param interface{}) {
+	p.SetAny(key, param)
+}
+
+func (p Params) Set(key, value string) {
 	p[key] = value
 }
-func (p Params) AddParams(key string, param Params) {
+func (p Params) SetParams(key string, param Params) {
 	p[key] = param
 }
-func (p Params) AddAny(key string, param interface{}) {
+func (p Params) SetAny(key string, param interface{}) {
 	p[key] = param
 }
 
