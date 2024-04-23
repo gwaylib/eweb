@@ -21,7 +21,7 @@ type Params map[string]interface{}
 func ParseParams(data []byte) (Params, error) {
 	params := Params{}
 	if err := json.Unmarshal(data, &params); err != nil {
-		return params, errors.As(err)
+		return params, errors.As(err, string(data))
 	}
 	return params, nil
 }
