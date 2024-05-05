@@ -5,8 +5,8 @@ import (
 
 	"github.com/gwaylib/eweb"
 	_ "github.com/gwaylib/eweb/example/route"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Register router

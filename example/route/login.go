@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gwaylib/eweb"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // register routes

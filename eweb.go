@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/gwaylib/eweb/jsonp"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/color"
 )
 

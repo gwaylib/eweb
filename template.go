@@ -5,7 +5,7 @@ import (
 	"io/fs"
 	"text/template"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type Template struct {
