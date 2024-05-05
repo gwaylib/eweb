@@ -1,9 +1,9 @@
 package eweb
 
 import (
+	"html/template"
 	"io"
 	"io/fs"
-	"text/template"
 
 	echo "github.com/labstack/echo/v4"
 )
