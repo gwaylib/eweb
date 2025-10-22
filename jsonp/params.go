@@ -64,6 +64,11 @@ func (p Params) SetAny(key string, param interface{}) {
 	p[key] = param
 }
 
+func (p Params) HasKey(key string) bool {
+	_, ok := p[key]
+	return ok
+}
+
 func (p Params) TrimString(key string) string {
 	return strings.TrimSpace(p.String(key))
 }
