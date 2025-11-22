@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gwaylib/errors"
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -136,14 +137,26 @@ func (p Params) Time(key string, layoutOpt ...string) time.Time {
 	return t
 }
 
+func (p Params) Decimal(key string, noDataRet, errRet float64) decimal.Decimal {
+	valStr := p.String(key)
+	if len(valStr) == 0 {
+		return decimal.NewFromFloat(noDataRet)
+	}
+	val, err := decimal.NewFromString(valStr)
+	if err != nil {
+		return decimal.NewFromFloat(errRet)
+	}
+	return val
+}
+
 func (p Params) Email(key string) string {
 	email := p.String(key)
 	if strings.Index(email, "@") < 1 {
-		return ""
+		return key
 	}
 	for _, r := range email {
 		if r > 255 {
-			return ""
+			return key
 		}
 	}
 	return email
