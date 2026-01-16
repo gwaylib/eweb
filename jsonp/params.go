@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"strconv"
 	"strings"
 	"time"
 
@@ -75,9 +74,13 @@ func (p Params) TrimString(key string) string {
 }
 
 func (p Params) String(key string) string {
-	s, ok := p[key]
+	v, ok := p[key]
 	if !ok {
 		return ""
+	}
+	s, ok := v.(string)
+	if ok {
+		return s
 	}
 	return fmt.Sprint(s)
 }
@@ -101,14 +104,15 @@ func (p Params) Float64(key string, noDataRet, errRet float64) float64 {
 	if ok {
 		return f
 	}
-	if len(fmt.Sprint(v)) == 0 {
-		return noDataRet
+	s, ok := v.(string)
+	if ok {
+		num, err := json.Number(s).Float64()
+		if err != nil {
+			return errRet
+		}
+		return num
 	}
-	out, err := strconv.ParseFloat(fmt.Sprint(v), 64)
-	if err != nil {
-		return errRet
-	}
-	return out
+	return errRet
 }
 
 func (p Params) Int64(key string, noDataRet, errRet int64) int64 {
@@ -119,6 +123,14 @@ func (p Params) Int64(key string, noDataRet, errRet int64) int64 {
 	i, ok := v.(int64)
 	if ok {
 		return i
+	}
+	s, ok := v.(string)
+	if ok {
+		num, err := json.Number(s).Int64()
+		if err != nil {
+			return errRet
+		}
+		return num
 	}
 	// fix big number
 	return int64(p.Float64(key, float64(noDataRet), float64(errRet)))
