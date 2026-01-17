@@ -203,15 +203,18 @@ func (p Params) Email(key string) string {
 	return email
 }
 func (p Params) Params(key string) Params {
-	s, ok := p[key]
+	v, ok := p[key]
 	if !ok {
 		return Params{}
 	}
-	sParams, ok := s.(map[string]interface{})
-	if !ok {
+	switch s := v.(type) {
+	case map[string]interface{}:
+		return Params(s)
+	case Params:
+		return Params(s)
+	default:
 		return Params{}
 	}
-	return Params(sParams)
 }
 func (p Params) Any(key string) interface{} {
 	return p[key]

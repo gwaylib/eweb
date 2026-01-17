@@ -1,6 +1,8 @@
 package jsonp
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestParams(t *testing.T) {
 	in := `{
@@ -9,7 +11,8 @@ func TestParams(t *testing.T) {
 	"num":"0",
 	"int":1024,
 	"float":1.024,
-	"bool":true
+	"bool":true,
+	"obj":{"Balance":9979.48,"Credit":0,"Equity":9979.48,"Margin":0,"MarginFree":9979.48}
   }]
 }`
 	p, err := ParseParams([]byte(in))
@@ -28,5 +31,8 @@ func TestParams(t *testing.T) {
 	}
 	if !goods[0].Bool("bool") {
 		t.Fatal("expect true, but false")
+	}
+	if goods[0].Params("obj").Float64("Equity", 0, 0) != 9979.48 {
+		t.Fatal("obj test failed")
 	}
 }
