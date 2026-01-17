@@ -100,19 +100,24 @@ func (p Params) Float64(key string, noDataRet, errRet float64) float64 {
 	if !ok {
 		return noDataRet
 	}
-	f, ok := v.(float64)
-	if ok {
-		return f
-	}
-	s, ok := v.(string)
-	if ok {
-		num, err := json.Number(s).Float64()
+	switch f := v.(type) {
+	case float32:
+		return float64(f)
+	case float64:
+		return float64(f)
+	case string:
+		num, err := json.Number(f).Float64()
+		if err != nil {
+			return errRet
+		}
+		return num
+	default:
+		num, err := json.Number(fmt.Sprint(f)).Float64()
 		if err != nil {
 			return errRet
 		}
 		return num
 	}
-	return errRet
 }
 
 func (p Params) Int64(key string, noDataRet, errRet int64) int64 {
@@ -120,19 +125,22 @@ func (p Params) Int64(key string, noDataRet, errRet int64) int64 {
 	if !ok {
 		return noDataRet
 	}
-	i, ok := v.(int64)
-	if ok {
-		return i
-	}
-	s, ok := v.(string)
-	if ok {
-		num, err := json.Number(s).Int64()
+	switch i := v.(type) {
+	case int8:
+		return int64(i)
+	case int16:
+		return int64(i)
+	case int32:
+		return int64(i)
+	case int64:
+		return int64(i)
+	case string:
+		val, err := json.Number(i).Int64()
 		if err != nil {
 			return errRet
 		}
-		return num
+		return val
 	}
-	// fix big number
 	return int64(p.Float64(key, float64(noDataRet), float64(errRet)))
 }
 func (p Params) Time(key string, layoutOpt ...string) time.Time {
@@ -150,15 +158,36 @@ func (p Params) Time(key string, layoutOpt ...string) time.Time {
 }
 
 func (p Params) Decimal(key string, noDataRet, errRet float64) decimal.Decimal {
-	valStr := p.String(key)
-	if len(valStr) == 0 {
+	v, ok := p[key]
+	if !ok {
 		return decimal.NewFromFloat(noDataRet)
 	}
-	val, err := decimal.NewFromString(valStr)
-	if err != nil {
-		return decimal.NewFromFloat(errRet)
+	switch d := v.(type) {
+	case int8:
+		return decimal.NewFromInt(int64(d))
+	case int16:
+		return decimal.NewFromInt(int64(d))
+	case int32:
+		return decimal.NewFromInt(int64(d))
+	case int64:
+		return decimal.NewFromInt(d)
+	case float32:
+		return decimal.NewFromFloat(float64(d))
+	case float64:
+		return decimal.NewFromFloat(d)
+	case string:
+		val, err := decimal.NewFromString(d)
+		if err != nil {
+			return decimal.NewFromFloat(errRet)
+		}
+		return val
+	default:
+		val, err := decimal.NewFromString(fmt.Sprint(v))
+		if err != nil {
+			return decimal.NewFromFloat(errRet)
+		}
+		return val
 	}
-	return val
 }
 
 func (p Params) Email(key string) string {
