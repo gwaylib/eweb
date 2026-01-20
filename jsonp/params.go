@@ -82,7 +82,7 @@ func (p Params) String(key string) string {
 	if ok {
 		return s
 	}
-	return fmt.Sprint(s)
+	return fmt.Sprint(v)
 }
 func (p Params) Bool(key string) bool {
 	v, ok := p[key]
@@ -112,7 +112,7 @@ func (p Params) Float64(key string, noDataRet, errRet float64) float64 {
 		}
 		return num
 	default:
-		num, err := json.Number(fmt.Sprint(f)).Float64()
+		num, err := json.Number(fmt.Sprint(v)).Float64()
 		if err != nil {
 			return errRet
 		}
