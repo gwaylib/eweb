@@ -5,6 +5,10 @@ github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keL
 github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/gwaylib/errors v0.0.2 h1:UB6eLGEeOmf674D7aJHh8rSdDBt4RnhUxz/LAGuDyJs=
 github.com/gwaylib/errors v0.0.2/go.mod h1:+HS/JYB/LwqAWsVPCZHFYhwdDiQ/N2kuUqhYD44tfpY=
+github.com/gwaylib/errors v0.0.4 h1:pc/M/FLLpAPavCx/DpIF/JNa9cf/35bwVjmDylF3VGk=
+github.com/gwaylib/errors v0.0.4/go.mod h1:+HS/JYB/LwqAWsVPCZHFYhwdDiQ/N2kuUqhYD44tfpY=
+github.com/gwaylib/jsonp v0.0.1 h1:LPS2svdsDrASJZqCJEfn+MDAFNs+Gw+umWq5olXJg6w=
+github.com/gwaylib/jsonp v0.0.1/go.mod h1:II/c61+qzTzcO8eUhQXYOK9NSU7ttvy95Id8cXVjcUs=
 github.com/labstack/echo/v4 v4.12.0 h1:IKpw49IMryVB2p1a4dzwlhP1O2Tf2E0Ir/450lH+kI0=
 github.com/labstack/echo/v4 v4.12.0/go.mod h1:UP9Cr2DJXbOK3Kr9ONYzNowSh7HP0aG0ShAyycHSJvM=
 github.com/labstack/gommon v0.4.2 h1:F8qTUNXgG1+6WQmqoUWnz8WiEU60mXVVw0P4ht1WRA0=
